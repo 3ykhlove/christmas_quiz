@@ -321,23 +321,21 @@
                 </div>
 
                 <div class="name-input-box">
-                    <input
-                            id="player-name"
-                            type="text"
-                            list="name-list"
-                            placeholder="예: 로이"
-                    />
-                    <datalist id="name-list">
-                        <option value="로이"></option>
-                        <option value="이레"></option>
-                        <option value="아연"></option>
-                        <option value="태우"></option>
-                        <option value="재훈"></option>
-                        <option value="다은"></option>
-                        <option value="채원"></option>
-                        <option value="소영"></option>
-                        <option value="승현"></option>
-                    </datalist>
+                    <label for="player-name" style="margin-bottom: 6px;">
+                        이름을 선택해 주세요
+                    </label>
+                    <select id="player-name">
+                        <option value="">-- 이름을 선택하세요 --</option>
+                        <option value="로이">로이</option>
+                        <option value="이레">이레</option>
+                        <option value="아연">아연</option>
+                        <option value="태우">태우</option>
+                        <option value="재훈">재훈</option>
+                        <option value="다은">다은</option>
+                        <option value="채원">채원</option>
+                        <option value="소영">소영</option>
+                        <option value="승현">승현</option>
+                    </select>
 
                     <button class="start-btn" onclick="startQuiz()">START ✨</button>
                 </div>
@@ -645,24 +643,12 @@
     let countdownIntervalId = null;
 
     function startQuiz() {
-        const input = document.getElementById("player-name");
-        const name = (input.value || "").trim();
+        const select = document.getElementById("player-name");
+        const name = select.value;
 
-        const allowedNames = [
-            "로이",
-            "이레",
-            "아연",
-            "태우",
-            "재훈",
-            "다은",
-            "채원",
-            "소영",
-            "승현"
-        ];
-
-        if (!allowedNames.includes(name)) {
-            alert("이름을 정확히 입력해 주세요 🙂\n(로이, 이레, 아연, 태우, 재훈, 다은, 채원, 소영, 승현)");
-            input.focus();
+        if (!name) {
+            alert("이름을 선택해 주세요 🙂");
+            select.focus();
             return;
         }
 
