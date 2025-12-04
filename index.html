@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>크리스마스 퀴즈 🎄</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            word-break: keep-all;
+        }
+
+        body {
+            font-family: "Apple SD Gothic Neo", -apple-system, BlinkMacSystemFont,
+            "Segoe UI", sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            background: #8b0000;
+            color: #3b1b0b;
+        }
+
+        /* 배경 별 패턴 */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image:
+                /* 기존 별 + 새 별들 추가 */
+                    radial-gradient(circle at 10% 20%, #ffd1d1 2px, transparent 3px),
+                    radial-gradient(circle at 80% 30%, #ffe4a3 2px, transparent 3px),
+                    radial-gradient(circle at 30% 80%, #ffcdd2 2px, transparent 3px),
+                    radial-gradient(circle at 70% 75%, #fff59d 2px, transparent 3px),
+
+                        /* 새 별들 */
+                    radial-gradient(circle at 20% 10%, #fff3b0 2px, transparent 3px),
+                    radial-gradient(circle at 50% 15%, #ffe082 2px, transparent 3px),
+                    radial-gradient(circle at 90% 20%, #ffd180 2px, transparent 3px),
+                    radial-gradient(circle at 15% 50%, #ffe0b2 2px, transparent 3px),
+                    radial-gradient(circle at 85% 55%, #fff59d 2px, transparent 3px),
+                    radial-gradient(circle at 25% 90%, #ffe4a3 2px, transparent 3px),
+                    radial-gradient(circle at 60% 85%, #ffd1d1 2px, transparent 3px),
+                    radial-gradient(circle at 95% 70%, #ffcdd2 2px, transparent 3px);
+
+            opacity: 0.45; /* 조금 더 선명하게 */
+            pointer-events: none;
+            z-index: 0;
+        }
+
+
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            width: 100%;
+            background: #8b0000;
+            border-radius: 24px;
+            padding: 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .inner-card {
+            background: #fffdf6;
+            border-radius: 18px;
+            padding: 24px 18px 28px;
+            min-height: 380px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            letter-spacing: 0.1em;
+            color: #b71c1c;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        header p {
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .question-box {
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .question-number {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #b71c1c;
+            margin-bottom: 6px;
+        }
+
+        .question-text {
+            font-size: 1.05rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px 24px;
+            justify-items: center;
+            margin-bottom: 16px;
+        }
+
+        .option-btn {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+            padding: 8px 10px;
+            border-radius: 999px;
+            transition: transform 0.1s ease, box-shadow 0.1s ease,
+            background-color 0.1s ease, opacity 0.1s ease;
+        }
+
+        .option-btn span.star {
+            font-size: 1.3rem;
+        }
+
+        /* 색상 */
+        .opt-blue .star {
+            color: #7a7cf9;
+        }
+        .opt-green .star {
+            color: #a1ffb2;
+        }
+        .opt-red .star {
+            color: #ffd779;
+        }
+        .opt-yellow .star {
+            color: #ff7b7b;
+        }
+
+        .option-btn:hover {
+            background-color: #fff3e0;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .option-btn.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+            pointer-events: none;
+        }
+
+        .option-text {
+            color: #4e342e;
+            font-weight: 500;
+        }
+
+        .message {
+            text-align: center;
+            min-height: 32px;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+        }
+
+        .message.correct {
+            color: #1b5e20;
+            font-weight: 600;
+        }
+
+        .message.wrong {
+            color: #c62828;
+            font-weight: 600;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 8px;
+        }
+
+        .next-btn {
+            border: none;
+            padding: 10px 24px;
+            border-radius: 999px;
+            background-color: #1b5e20;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            opacity: 0.5;
+            pointer-events: none;
+            transition: background-color 0.15s ease, transform 0.1s ease,
+            opacity 0.15s ease;
+        }
+
+        .next-btn.enabled {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .next-btn:hover {
+            background-color: #2e7d32;
+            transform: translateY(-1px);
+        }
+
+        .next-btn:active {
+            transform: translateY(0);
+        }
+
+        .verse-box {
+            margin-top: 20px;
+            text-align: left;
+            line-height: 1.6;
+            font-size: 0.98rem;
+            color: #4e342e;
+        }
+
+        .verse-box h2 {
+            text-align: center;
+            margin-bottom: 12px;
+            color: #b71c1c;
+        }
+
+        .highlight-name {
+            font-weight: 700;
+            color: #b71c1c;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background-color: #ffcdd2;
+            color: #080000;
+            font-weight: bold;
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+        }
+
+        .name-input-box {
+            text-align: center;
+            margin-top: 24px;
+        }
+
+        .name-input-box label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.98rem;
+        }
+
+        .name-input-box input {
+            padding: 8px 10px;
+            width: 70%;
+            max-width: 260px;
+            border-radius: 999px;
+            border: 1px solid #d7ccc8;
+            outline: none;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .start-btn {
+            margin-top: 14px;
+            border: none;
+            padding: 9px 22px;
+            border-radius: 999px;
+            background-color: #1b5e20;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .start-btn:hover {
+            background-color: #2e7d32;
+        }
+
+        @media (max-width: 600px) {
+            .inner-card {
+                padding: 20px 14px 22px;
+            }
+
+            .options-grid {
+                gap: 8px 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="wrapper">
+    <div class="inner-card">
+        <header>
+            <h1>CHRISTMAS QUIZ 🎁</h1>
+            <p>퀴즈를 풀고 마지막에 말씀 미션까지 완료해 보세요!</p>
+        </header>
+
+        <!-- STEP 0: 이름 입력 -->
+        <section id="step-0" class="step">
+            <div class="question-box">
+                <div class="question-number">STEP 0</div>
+                <div class="question-text">
+                    먼저 자기 이름을 선택해 주세요 😊
+                </div>
+
+                <div class="name-input-box">
+                    <input
+                            id="player-name"
+                            type="text"
+                            list="name-list"
+                            placeholder="예: 로이"
+                    />
+                    <datalist id="name-list">
+                        <option value="로이"></option>
+                        <option value="이레"></option>
+                        <option value="아연"></option>
+                        <option value="태우"></option>
+                        <option value="재훈"></option>
+                        <option value="다은"></option>
+                        <option value="채원"></option>
+                        <option value="소영"></option>
+                        <option value="승현"></option>
+                    </datalist>
+
+                    <button class="start-btn" onclick="startQuiz()">START ✨</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 1 -->
+        <section id="step-1" class="step" style="display: none;">
+            <div class="question-box">
+                <div class="question-number">QUESTION 1</div>
+                <div class="question-text">
+                    청년부 중에서 가장 예쁜 누나/이모는 누구일까요? 😉
+                </div>
+
+                <div class="options-grid">
+                    <button class="option-btn opt-blue" onclick="checkAnswer(1, 1)">
+                        <span class="star">★</span>
+                        <span class="option-text">황여경</span>
+                    </button>
+                    <button class="option-btn opt-green" onclick="checkAnswer(1, 2)">
+                        <span class="star">★</span>
+                        <span class="option-text">정로이</span>
+                    </button>
+                    <button class="option-btn opt-red" onclick="checkAnswer(1, 3)">
+                        <span class="star">★</span>
+                        <span class="option-text">황성재</span>
+                    </button>
+                    <button class="option-btn opt-yellow" onclick="checkAnswer(1, 4)">
+                        <span class="star">★</span>
+                        <span class="option-text">강현성</span>
+                    </button>
+                </div>
+
+                <div id="message-1" class="message"></div>
+            </div>
+
+            <div class="footer">
+                <button id="next-1" class="next-btn" onclick="goToStep(2)">
+                    Next ➜
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 2 -->
+        <section id="step-2" class="step" style="display: none;">
+            <div class="question-box">
+                <div class="question-number">QUESTION 2</div>
+                <div class="question-text">
+                    주님은 우리들에게<br />
+                    "너희는 세상의 ___ 이다" 라고 하셨을까요?
+                </div>
+
+                <div class="options-grid">
+                    <button class="option-btn opt-blue" onclick="checkAnswer(2, 1)">
+                        <span class="star">★</span>
+                        <span class="option-text">연필과 지우개</span>
+                    </button>
+                    <button class="option-btn opt-green" onclick="checkAnswer(2, 2)">
+                        <span class="star">★</span>
+                        <span class="option-text">소금과 눈</span>
+                    </button>
+                    <button class="option-btn opt-red" onclick="checkAnswer(2, 3)">
+                        <span class="star">★</span>
+                        <span class="option-text">소금과 빛</span>
+                    </button>
+                    <button class="option-btn opt-yellow" onclick="checkAnswer(2, 4)">
+                        <span class="star">★</span>
+                        <span class="option-text">눈과 빛</span>
+                    </button>
+                </div>
+
+                <div id="message-2" class="message"></div>
+            </div>
+
+            <div class="footer">
+                <button id="next-2" class="next-btn" onclick="goToStep(3)">
+                    Next ➜
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 3 -->
+        <section id="step-3" class="step" style="display: none;">
+            <div class="question-box">
+                <div class="question-number">QUESTION 3</div>
+                <div class="question-text">
+                    동방박사들이 아기 예수님께 예물로 드린 것은 무엇인가요?
+                </div>
+
+                <div class="options-grid">
+                    <button class="option-btn opt-blue" onclick="checkAnswer(3, 1)">
+                        <span class="star">★</span>
+                        <span class="option-text">기름, 유향, 몰약</span>
+                    </button>
+                    <button class="option-btn opt-green" onclick="checkAnswer(3, 2)">
+                        <span class="star">★</span>
+                        <span class="option-text">황금, 몰약, 향수</span>
+                    </button>
+                    <button class="option-btn opt-red" onclick="checkAnswer(3, 3)">
+                        <span class="star">★</span>
+                        <span class="option-text">황금, 유향, 몰약</span>
+                    </button>
+                    <button class="option-btn opt-yellow" onclick="checkAnswer(3, 4)">
+                        <span class="star">★</span>
+                        <span class="option-text">황금, 유향, 안약</span>
+                    </button>
+                </div>
+
+                <div id="message-3" class="message"></div>
+            </div>
+
+            <div class="footer">
+                <button id="next-3" class="next-btn" onclick="goToStep(4)">
+                    Next ➜
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 4 -->
+        <section id="step-4" class="step" style="display: none;">
+            <div class="question-box">
+                <div class="question-number">QUESTION 4</div>
+                <div class="question-text">
+                    예수님이 탄생하실 때<br />
+                    누가 목자들에게 이 소식을 알려주었나요?
+                </div>
+
+                <div class="options-grid">
+                    <button class="option-btn opt-blue" onclick="checkAnswer(4, 1)">
+                        <span class="star">★</span>
+                        <span class="option-text">마리아</span>
+                    </button>
+                    <button class="option-btn opt-green" onclick="checkAnswer(4, 2)">
+                        <span class="star">★</span>
+                        <span class="option-text">요셉</span>
+                    </button>
+                    <button class="option-btn opt-red" onclick="checkAnswer(4, 3)">
+                        <span class="star">★</span>
+                        <span class="option-text">마귀</span>
+                    </button>
+                    <button class="option-btn opt-yellow" onclick="checkAnswer(4, 4)">
+                        <span class="star">★</span>
+                        <span class="option-text">천사</span>
+                    </button>
+                </div>
+
+                <div id="message-4" class="message"></div>
+            </div>
+
+            <div class="footer">
+                <button id="next-4" class="next-btn" onclick="goToStep(5)">
+                    Next ➜
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 5 -->
+        <section id="step-5" class="step" style="display: none;">
+            <div class="question-box">
+                <div class="question-number">QUESTION 5</div>
+                <div class="question-text">
+                    목자들에게 천사들이 전하여 준 내용입니다.<br />
+                    빈칸에 들어갈 말은 무엇일까요?
+                </div>
+
+                <div class="question-text" style="font-size: 0.95rem; margin-top: 4px;">
+                    "지극히 높은 곳에서는 하나님께 ------이요<br />
+                    땅에서는 기뻐하심을 입은 사람들 중에 -----로다"
+                </div>
+
+                <div class="options-grid" style="margin-top: 16px;">
+                    <button class="option-btn opt-blue" onclick="checkAnswer(5, 1)">
+                        <span class="star">★</span>
+                        <span class="option-text">영광, 은혜</span>
+                    </button>
+                    <button class="option-btn opt-green" onclick="checkAnswer(5, 2)">
+                        <span class="star">★</span>
+                        <span class="option-text">평강, 은혜</span>
+                    </button>
+                    <button class="option-btn opt-red" onclick="checkAnswer(5, 3)">
+                        <span class="star">★</span>
+                        <span class="option-text">사랑, 평화</span>
+                    </button>
+                    <button class="option-btn opt-yellow" onclick="checkAnswer(5, 4)">
+                        <span class="star">★</span>
+                        <span class="option-text">영광, 평화</span>
+                    </button>
+                </div>
+
+                <div id="message-5" class="message"></div>
+            </div>
+
+            <div class="footer">
+                <button id="next-5" class="next-btn" onclick="goToStep(6)">
+                    Finish 🎁
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 6 : 이름별 말씀 미션 -->
+        <section id="step-6" class="step" style="display: none;">
+            <div class="question-box">
+                <div class="question-number">MISSION 🎄</div>
+
+                <div class="question-text" >
+                </div>
+
+                <div class="verse-box" style="text-align: center;">
+                    <div class="badge"><span id="final-name-text"></span> 부모님이 주신 성경구절💜</div>
+                    <h2 id="verse-ref">요한복음 3:16</h2>
+                    <p id="verse-text" style="margin-top: 8px; word-break: keep-all; text-align: center;">
+                        "하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니<br />
+                        이는 저를 믿는 자마다 멸망치 않고<br />
+                        영생을 얻게 하려 하심이니라”
+                    </p>
+
+                    <p style="margin-top: 30px; text-align: center;">
+                        <span class="highlight-name">👉 이제 황여경쌤</span>에게 가서<br />
+                        말씀을 암송하고 선물을 받아가세요! 🎁
+                    </p>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script>
+    // 이름 & 말씀 매핑 (나중에 각자 말씀으로 자유롭게 수정 가능)
+    const verseMap = {
+        "로이": {
+            ref: "요한복음 3:16",
+            text:
+                "하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니<br />" +
+                "이는 저를 믿는 자마다 멸망치 않고<br />" +
+                "영생을 얻게 하려 하심이니라"
+        },
+        "이레": {
+            ref: "요한복음 3:16",
+            text:
+                "하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니<br />" +
+                "이는 저를 믿는 자마다 멸망치 않고<br />" +
+                "영생을 얻게 하려 하심이니라"
+        },
+        "아연": {
+            ref: "요한복음 3장 16절",
+            text:
+                "하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니<br />" +
+                "이는 저를 믿는 자마다 멸망치 않고<br />" +
+                "영생을 얻게 하려 하심이니라"
+        },
+        "태우": {
+            ref: "요한복음 14장 6절",
+            text:
+                "예수께서 이르시되 내가 곧 길이요 진리요 생명이니<br />" +
+                "나로 말미암지 않고는 아버지께로 올 자가 없느니라"
+        },
+        "재훈": {
+            ref: "요한복음 3:16",
+            text:
+                "하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니<br />" +
+                "이는 저를 믿는 자마다 멸망치 않고<br />" +
+                "영생을 얻게 하려 하심이니라"
+        },
+        "다은": {
+            ref: "요한복음 3:16",
+            text:
+                "하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니<br />" +
+                "이는 저를 믿는 자마다 멸망치 않고<br />" +
+                "영생을 얻게 하려 하심이니라"
+        },
+        "채원": {
+            ref: "요한복음 3:16",
+            text:
+                "하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니<br />" +
+                "이는 저를 믿는 자마다 멸망치 않고<br />" +
+                "영생을 얻게 하려 하심이니라"
+        },
+        "소영": {
+            ref: "요한복음 3:16",
+            text:
+                "하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니<br />" +
+                "이는 저를 믿는 자마다 멸망치 않고<br />" +
+                "영생을 얻게 하려 하심이니라"
+        },
+        "승현": {
+            ref: "요한복음 3:16",
+            text:
+                "하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니<br />" +
+                "이는 저를 믿는 자마다 멸망치 않고<br />" +
+                "영생을 얻게 하려 하심이니라"
+        }
+    };
+
+    // 정답: 1~5번 문제
+    const answers = {
+        1: 1,
+        2: 3,
+        3: 3,
+        4: 4,
+        5: 4
+    };
+
+    let currentName = "";
+    let isLocked = false;
+    let countdownIntervalId = null;
+
+    function startQuiz() {
+        const input = document.getElementById("player-name");
+        const name = (input.value || "").trim();
+
+        const allowedNames = [
+            "로이",
+            "이레",
+            "아연",
+            "태우",
+            "재훈",
+            "다은",
+            "채원",
+            "소영",
+            "승현"
+        ];
+
+        if (!allowedNames.includes(name)) {
+            alert("이름을 정확히 입력해 주세요 🙂\n(로이, 이레, 아연, 태우, 재훈, 다은, 채원, 소영, 승현)");
+            input.focus();
+            return;
+        }
+
+        currentName = name;
+        goToStep(1);
+    }
+
+    function resetMessage(step) {
+        const msg = document.getElementById("message-" + step);
+        if (!msg) return;
+        msg.textContent = "";
+        msg.className = "message";
+    }
+
+    function setButtonsDisabled(step, disabled) {
+        const section = document.getElementById("step-" + step);
+        if (!section) return;
+        const buttons = section.querySelectorAll(".option-btn");
+        buttons.forEach((btn) => {
+            if (disabled) {
+                btn.classList.add("disabled");
+            } else {
+                btn.classList.remove("disabled");
+            }
+        });
+    }
+
+    function checkAnswer(step, choice) {
+        if (isLocked) return; // 잠금 중이면 클릭 무시
+
+        const msg = document.getElementById("message-" + step);
+        const nextBtn = document.getElementById("next-" + step);
+
+        // 정답
+        if (choice === answers[step]) {
+            msg.innerHTML = "정답입니다! ➜ 아래 Next 버튼을 눌러주세요 🎉";
+            msg.className = "message correct";
+            if (nextBtn) {
+                nextBtn.classList.add("enabled");
+            }
+        } else {
+            // 오답일 경우 3초 잠금 + 카운트다운
+            msg.className = "message wrong";
+            let remaining = 3;
+            msg.innerHTML =
+                "앗! 다시 한 번 생각해볼까요? 😊<br>⏳ " + remaining + "초 뒤에 다시 선택할 수 있어요";
+
+            isLocked = true;
+            setButtonsDisabled(step, true);
+
+            if (countdownIntervalId) {
+                clearInterval(countdownIntervalId);
+            }
+
+            countdownIntervalId = setInterval(() => {
+                remaining--;
+                if (remaining > 0) {
+                    msg.innerHTML =
+                        "앗! 다시 한 번 생각해볼까요? 😊<br>⏳ " +
+                        remaining +
+                        "초 뒤에 다시 선택할 수 있어요";
+                } else {
+                    clearInterval(countdownIntervalId);
+                    countdownIntervalId = null;
+                    isLocked = false;
+                    setButtonsDisabled(step, false);
+                    msg.className = "message";
+                    msg.textContent = "이제 다시 골라보세요! ✨";
+                }
+            }, 1000);
+        }
+    }
+
+    function goToStep(step) {
+        // 모든 step 숨기기
+        const steps = document.querySelectorAll(".step");
+        steps.forEach((el) => (el.style.display = "none"));
+
+        // 잠금/카운트다운 초기화
+        isLocked = false;
+        if (countdownIntervalId) {
+            clearInterval(countdownIntervalId);
+            countdownIntervalId = null;
+        }
+
+        // 메시지 리셋 (문제 단계일 때)
+        if (step >= 1 && step <= 5) {
+            resetMessage(step);
+            setButtonsDisabled(step, false);
+        }
+
+        // 마지막 단계에서 이름/말씀 세팅
+        if (step === 6) {
+            const nameSpan = document.getElementById("final-name-text");
+            const verseRef = document.getElementById("verse-ref");
+            const verseText = document.getElementById("verse-text");
+
+            nameSpan.textContent = currentName || "";
+            const verse = verseMap[currentName] || verseMap["로이"]; // 혹시 모를 예외용
+
+            verseRef.textContent = verse.ref;
+            verseText.innerHTML = verse.text;
+        }
+
+        const target = document.getElementById("step-" + step);
+        if (target) {
+            target.style.display = "block";
+        }
+    }
+</script>
+</body>
+</html>
